@@ -1129,8 +1129,13 @@ class TiffImageFile(ImageFile.ImageFile):
         if fp:
             args[2] = fp
 
-        decoder = Image._getdecoder(self.mode, 'libtiff', tuple(args),
-                                    self.decoderconfig)
+        try:
+            decoder = Image._getdecoder(self.mode, 'libtiff', tuple(args),
+                                        self.decoderconfig)
+        except IOError as e:
+            if fp:
+                os.close(fp)
+            raise e
         try:
             decoder.setimage(self.im, extents)
         except ValueError:
